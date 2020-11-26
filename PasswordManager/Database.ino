@@ -65,7 +65,7 @@ void setupDB(){
   myFile.close();
   #else
   SerialMonitorInterface.println("Skipping SD Card. Using in-memory volatile database.");
-  for(int i = 0; i < dummy::len && i < sizeof(key); i++){
+  for(int i = 0; i < dummy::len && i < (sizeof(key) / sizeof(key[0])); i++){
     strcpy(key[i], dummy::key[i]);
     strcpy(value[i], dummy::value[i]);
     Row++;

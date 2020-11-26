@@ -13,5 +13,5 @@ namespace dummy {
     "zfLDwP7xH",
     "dfxr8XaZ9"
   };
-  const size_t len = sizeof(key);
+  const size_t len = sizeof(key) / sizeof(key[0]);
 }
