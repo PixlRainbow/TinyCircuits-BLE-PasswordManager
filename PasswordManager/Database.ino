@@ -251,11 +251,18 @@ void printrow() {
 
 void writeText(){
   display.clearScreen();
-  display.setFont(liberationSans_16ptFontInfo); //Set Font
-  int width=display.getPrintWidth(key[displayRow]); //get the pixel print width of a string
-  display.setCursor(48-(width/2),25);  //set text cursor position to (x,y)
-  display.fontColor(TS_8b_Green,TS_8b_Black); //sets text and background color
-  display.print(key[displayRow]);
+  writeTextCustom(key[displayRow], liberationSans_16ptFontInfo, 0xFF, 0xFF, TS_8b_Green, TS_8b_Black);
+}
+
+void writeTextCustom(char* text, FONT_INFO font, uint8_t x, uint8_t y, uint8_t fg, uint8_t bg){
+  display.setFont(font); //Set Font
+  display.fontColor(fg,bg); //sets text and background color
+  int width=display.getPrintWidth(text); //get the pixel print width of a string
+  if(x == 0xFF && y == 0xFF) // flag default coordinates
+    display.setCursor(48-(width/2),25);
+  else
+    display.setCursor(x,y);
+  display.print(text);
 }
 
 
