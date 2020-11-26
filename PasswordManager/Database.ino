@@ -264,6 +264,7 @@ void buttonLoop() {
   }
   else if (getConnectionState() && display.getButtons(TSButtonLowerRight)){
       char* warning = "Entering Password!";
+      SerialMonitorInterface.println(warning);
       int width=display.getPrintWidth(warning); //get the pixel print width of a string
       display.setCursor(48-(width/2),32);  //set text cursor position to (x,y)
       display.print(warning);
