@@ -116,7 +116,8 @@ void db_loop(){
   static bool was_pressed = false;
   if(millis() - startTime > 200){
     startTime = millis();
-    if(display.getButtons(TSButtonUpperRight|TSButtonLowerRight) && !was_pressed){
+    if(display.getButtons(TSButtonUpperRight|TSButtonLowerRight|TSButtonLowerLeft)
+      && !was_pressed){
       // buttonDown
       was_pressed = true;
       buttonLoop();
@@ -267,6 +268,7 @@ void writeTextCustom(char* text, FONT_INFO font, uint8_t x, uint8_t y, uint8_t f
 
 
 void buttonLoop() {
+  static bool delete_confirmation = false;
   if (display.getButtons(TSButtonUpperRight)){
       displayRow++;
       if (displayRow == Row){
@@ -277,18 +279,38 @@ void buttonLoop() {
       SerialMonitorInterface.println(displayRow);
       writeText();
       //delay(2000);
+      delete_confirmation = false;
   }
   else if (getConnectionState() && display.getButtons(TSButtonLowerRight)){
       char* warning = "Entering Password!";
       SerialMonitorInterface.println(warning);
       int width=display.getPrintWidth(warning); //get the pixel print width of a string
-      display.setCursor(48-(width/2),32);  //set text cursor position to (x,y)
-      display.print(warning);
+      writeTextCustom(warning, liberationSans_10ptFontInfo, 48-(width/2), 32, TS_8b_Green, TS_8b_Black);
       delay(50);
       const int len = strlen(value[displayRow]);
       for(int i = 0; i < len; i++){
         pressKey(value[displayRow][i]);
       }
       writeText();
+      delete_confirmation = false;
+  }
+  else if (display.getButtons(TSButtonLowerLeft)){
+    // clear pairings/bondings
+    if(delete_confirmation){
+      aci_gap_clear_security_database();
+      char* warning = "Reboot Required";
+      display.clearScreen();
+      writeTextCustom(warning, liberationSans_10ptFontInfo, 0xFF, 0xFF, TS_8b_Gray, TS_8b_Black);
+    }
+    else{
+      char* warning = "Clear Pairings?";
+      SerialMonitorInterface.println(warning);
+      display.clearScreen();
+      writeTextCustom(warning, liberationSans_10ptFontInfo, 0xFF, 0xFF, TS_8b_Green, TS_8b_Black);
+      // print options
+      writeTextCustom("< YES", liberationSans_10ptFontInfo, 4, 42, TS_8b_Gray, TS_8b_Black);
+      writeTextCustom("NO >", liberationSans_10ptFontInfo, 64, 42, TS_8b_Gray, TS_8b_Black);
+    }
+    delete_confirmation = !delete_confirmation;
   }
 }
