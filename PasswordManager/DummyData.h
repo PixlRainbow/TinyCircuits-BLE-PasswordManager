@@ -4,12 +4,14 @@ namespace dummy {
   const char* key[] = {
     "Ondrej",
     "Pancake",
+    "Penguin",
     "Dominic",
     "PoundLand"
   };
   const char* value[] = {
     "2gpK6zpXK",
     "9faEDNaSA",
+    "GGezPassw",
     "zfLDwP7xH",
     "dfxr8XaZ9"
   };
