@@ -27,7 +27,7 @@ uint8_t ble_tx_buffer_len = 0;
 uint8_t ble_connection_state = false;
 #define PIPE_UART_OVER_BTLE_UART_TX_TX 0
 
-TinyScreen display = TinyScreen(TinyScreenPlus);
+TinyScreen display = TinyScreen(TinyScreenDefault);
 
 void setup() {
   SerialMonitorInterface.begin(9600);
