@@ -113,9 +113,18 @@ void setupDB(){
 }
 void db_loop(){
   static unsigned long startTime = millis();
-  if(millis() - startTime > 2000){
-    buttonLoop();
+  static bool was_pressed = false;
+  if(millis() - startTime > 200){
     startTime = millis();
+    if(display.getButtons(TSButtonUpperRight|TSButtonLowerRight) && !was_pressed){
+      // buttonDown
+      was_pressed = true;
+      buttonLoop();
+    }
+    else if(!display.getButtons(TSButtonUpperRight|TSButtonLowerRight) && was_pressed){
+      // buttonUp
+      was_pressed = false;
+    }
   }
 }
 
