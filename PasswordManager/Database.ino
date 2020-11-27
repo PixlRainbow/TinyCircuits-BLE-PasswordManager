@@ -16,7 +16,17 @@
 #elif defined(ARDUINO_ARCH_SAMD)
 #define SerialMonitorInterface SerialUSB
 #endif
-#define MAX_UART_BUFFER 128'
+#define MAX_UART_BUFFER 128
+#endif
+
+#if BLE_DEBUG
+#include <stdio.h>
+#ifndef PRINTF
+char sprintbuff[100];
+#define PRINTF(...) {sprintf(sprintbuff,__VA_ARGS__);SerialMonitorInterface.print(sprintbuff);}
+#endif
+#else
+#define PRINTF(...)
 #endif
 
 char key[10][10] = {0};
@@ -39,8 +49,7 @@ void setupDisplay(){
 }
 
 void setupDB(){
-  SerialMonitorInterface.println(" Ini Parser begins:");
-  SerialMonitorInterface.println();
+  PRINTF(" Ini Parser begins:\n\n");
 
   #if USE_SDCARD
   SerialMonitorInterface.println("Initializing SD card...");
@@ -64,7 +73,7 @@ void setupDB(){
 
   myFile.close();
   #else
-  SerialMonitorInterface.println("Skipping SD Card. Using in-memory volatile database.");
+  PRINTF("Skipping SD Card. Using in-memory volatile database.\n");
   for(int i = 0; i < dummy::len && i < (sizeof(key) / sizeof(key[0])); i++){
     strcpy(key[i], dummy::key[i]);
     strcpy(value[i], dummy::value[i]);
@@ -227,27 +236,22 @@ void removeIni(char inputkey[]){
 
 //Print all values in key array and value array
 void printArray() {
-    SerialMonitorInterface.println("Keys:");
-    SerialMonitorInterface.println("==================");
+    PRINTF("Keys:\n");
+    PRINTF("==================\n");
    // loop through array's rows
    for ( int i = 0; i < Row; i++ ) {
-        SerialMonitorInterface.print(i+1);
-        SerialMonitorInterface.print(".");
-        SerialMonitorInterface.println(key[i]);
+        PRINTF("%d.%s\n",i+1,key[i]);
    }
-   SerialMonitorInterface.println("Values:");
-   SerialMonitorInterface.println("==================");
+   PRINTF("Values:\n");
+   PRINTF("==================\n");
    // loop through array's rows
    for ( int i = 0; i < Row; i++ ) {
-      SerialMonitorInterface.print(i+1);
-      SerialMonitorInterface.print(".");
-      SerialMonitorInterface.println(value[i]);
+      PRINTF("%d.%s\n",i+1,value[i]);
    }
 }
 
 void printrow() {
-   SerialMonitorInterface.print("Number of Rows:");
-   SerialMonitorInterface.println(Row);
+   PRINTF("Number of Rows:%d\n",Row);
 }
 
 void writeText(){
@@ -277,15 +281,14 @@ void buttonLoop() {
          displayRow = 0;
       }
       display.clearScreen();
-      SerialMonitorInterface.println("Button clicked");
-      SerialMonitorInterface.println(displayRow);
+      PRINTF("Button clicked\n%d\n",displayRow);
       writeText();
       //delay(2000);
   }
   else if (getConnectionState() && display.getButtons(TSButtonLowerRight)){
       if(!delete_confirmation){
         char* warning = "Entering Password!";
-        SerialMonitorInterface.println(warning);
+        PRINTF("%s\n",warning);
         int width=display.getPrintWidth(warning); //get the pixel print width of a string
         writeTextCustom(warning, liberationSans_10ptFontInfo, 48-(width/2), 32, TS_8b_Green, TS_8b_Black);
         delay(50);
@@ -307,7 +310,7 @@ void buttonLoop() {
     }
     else{
       char* warning = "Clear Pairings?";
-      SerialMonitorInterface.println(warning);
+      PRINTF("%s\n",warning);
       display.clearScreen();
       writeTextCustom(warning, liberationSans_10ptFontInfo, 0xFF, 0xFF, TS_8b_Green, TS_8b_Black);
       // print options
