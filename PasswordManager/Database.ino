@@ -122,6 +122,7 @@ void setupDB(){
 }
 void db_loop(){
   static unsigned long startTime = millis();
+  static unsigned long lastActivity = startTime;
   static bool was_pressed = false;
   if(millis() - startTime > 200){
     startTime = millis();
@@ -129,12 +130,19 @@ void db_loop(){
       && !was_pressed){
       // buttonDown
       was_pressed = true;
+      lastActivity = startTime;
       buttonLoop();
     }
     else if(!display.getButtons(TSButtonUpperRight|TSButtonLowerRight) && was_pressed){
       // buttonUp
       was_pressed = false;
+      lastActivity = startTime;
     }
+    // dim display after 5 seconds of inactivity
+    if(millis() - lastActivity > 5000)
+      display.setBrightness(2);
+    else
+      display.setBrightness(10);
   }
 }
 
