@@ -28,6 +28,7 @@ uint8_t ble_connection_state = false;
 #define PIPE_UART_OVER_BTLE_UART_TX_TX 0
 
 TinyScreen display = TinyScreen(TinyScreenDefault);
+bool disable_buttons = false;
 
 void setup() {
   SerialMonitorInterface.begin(9600);
@@ -56,7 +57,8 @@ void loop() {
 //      startTime = millis();
 //    }
 //  }
-  db_loop();
+  if(!disable_buttons)
+    db_loop();
 }
 
 uint8_t getConnectionState(){
