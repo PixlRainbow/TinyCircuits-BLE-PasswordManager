@@ -270,7 +270,9 @@ void writeTextCustom(char* text, FONT_INFO font, uint8_t x, uint8_t y, uint8_t f
 void buttonLoop() {
   static bool delete_confirmation = false;
   if (display.getButtons(TSButtonUpperRight)){
-      displayRow++;
+      if(delete_confirmation)
+        delete_confirmation = false;
+      else displayRow++;
       if (displayRow == Row){
          displayRow = 0;
       }
@@ -279,20 +281,21 @@ void buttonLoop() {
       SerialMonitorInterface.println(displayRow);
       writeText();
       //delay(2000);
-      delete_confirmation = false;
   }
   else if (getConnectionState() && display.getButtons(TSButtonLowerRight)){
-      char* warning = "Entering Password!";
-      SerialMonitorInterface.println(warning);
-      int width=display.getPrintWidth(warning); //get the pixel print width of a string
-      writeTextCustom(warning, liberationSans_10ptFontInfo, 48-(width/2), 32, TS_8b_Green, TS_8b_Black);
-      delay(50);
-      const int len = strlen(value[displayRow]);
-      for(int i = 0; i < len; i++){
-        pressKey(value[displayRow][i]);
+      if(!delete_confirmation){
+        char* warning = "Entering Password!";
+        SerialMonitorInterface.println(warning);
+        int width=display.getPrintWidth(warning); //get the pixel print width of a string
+        writeTextCustom(warning, liberationSans_10ptFontInfo, 48-(width/2), 32, TS_8b_Green, TS_8b_Black);
+        delay(50);
+        const int len = strlen(value[displayRow]);
+        for(int i = 0; i < len; i++){
+          pressKey(value[displayRow][i]);
+        }
       }
+      else delete_confirmation = false;
       writeText();
-      delete_confirmation = false;
   }
   else if (display.getButtons(TSButtonLowerLeft)){
     // clear pairings/bondings
