@@ -1,4 +1,4 @@
 [submodule "src/HIDKeyboard"]
 	path = src/HIDKeyboard
 	url = https://github.com/PixlRainbow/TinyCircuits-TinyShield-BLE-ASD2116.git
-	branch = randomPIN
+	branch = passwordman-display
