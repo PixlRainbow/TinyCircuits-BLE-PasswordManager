@@ -18,7 +18,8 @@
 #elif defined(ARDUINO_ARCH_SAMD)
 #define SerialMonitorInterface SerialUSB
 #endif
-#define MAX_UART_BUFFER 128
+// BLE standard defines a max payload size of 20 bytes
+#define MAX_UART_BUFFER 20
 
 uint8_t ble_rx_buffer[MAX_UART_BUFFER+1];
 uint8_t ble_rx_buffer_len = 0;
@@ -49,6 +50,30 @@ void loop() {
     SerialMonitorInterface.print(ble_rx_buffer_len);
     SerialMonitorInterface.print(" : ");
     SerialMonitorInterface.println((char*)ble_rx_buffer);
+    if(ble_rx_buffer_len > 11){
+      int attempt = 0;
+      //char sendBuffer[MAX_UART_BUFFER+1];
+      int sendLength = 0;
+      switch(toupper(ble_rx_buffer[0])){
+        case 'G': // GET
+        {
+          char* toSend = selectByName((char*)&ble_rx_buffer[2]);
+          if(toSend)
+            sendLength = strlen(toSend);
+          else
+            toSend = "";
+          while(attempt++ < 3 && Write_UART_TX(toSend, sendLength));
+        }
+        break;
+        case 'S': // SET
+        {
+          char* toSet = selectByName((char*)&ble_rx_buffer[2]);
+          if(toSet)
+            strncpy(toSet, (char*)&ble_rx_buffer[11], 9);
+        }
+        break;
+      }
+    }
     ble_rx_buffer_len = 0;//clear afer reading
   }
 //  if(ble_connection_state){

@@ -29,6 +29,11 @@ char sprintbuff[100];
 #define PRINTF(...)
 #endif
 
+enum Column {
+  USERNAME = 0x0,
+  PASSWORD = 0x1
+};
+
 char key[10][10] = {0};
 char value[10][10] = {0};
 int Row = 0;
@@ -144,6 +149,25 @@ void db_loop(){
     else
       display.setBrightness(10);
   }
+}
+
+char* selectByName(const char* username){
+  PRINTF("%s\n", username);
+  char trimmed_name[10];
+  strncpy(trimmed_name, username, 9);
+  strcpy(trimmed_name, strtok(trimmed_name, " "));
+  for(int i = 0; i < Row; i++){
+    if(strncmp(trimmed_name, key[i], 9) == 0)
+      return value[i];
+  }
+  return NULL;
+}
+
+char* selectByIndex(const size_t i, const uint8_t col){
+  if(col)
+    return value[i];
+  else
+    return key[i];
 }
 
 // BEGIN SDCARD OPERATIONS
