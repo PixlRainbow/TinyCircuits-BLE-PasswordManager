@@ -129,16 +129,16 @@ void db_loop(){
   static unsigned long startTime = millis();
   static unsigned long lastActivity = startTime;
   static bool was_pressed = false;
+  const uint8_t AllButtons = TSButtonUpperRight|TSButtonLowerRight|TSButtonLowerLeft|TSButtonUpperLeft;
   if(millis() - startTime > 200){
     startTime = millis();
-    if(display.getButtons(TSButtonUpperRight|TSButtonLowerRight|TSButtonLowerLeft)
-      && !was_pressed){
+    if(display.getButtons(AllButtons) && !was_pressed){
       // buttonDown
       was_pressed = true;
       lastActivity = startTime;
       buttonLoop();
     }
-    else if(!display.getButtons(TSButtonUpperRight|TSButtonLowerRight) && was_pressed){
+    else if(!display.getButtons(AllButtons) && was_pressed){
       // buttonUp
       was_pressed = false;
       lastActivity = startTime;
@@ -312,6 +312,8 @@ void writeTextCustom(char* text, FONT_INFO font, uint8_t x, uint8_t y, uint8_t f
 
 void buttonLoop() {
   static bool delete_confirmation = false;
+  uint8_t num_devices = 0, device_list[12*7];
+  aci_gap_get_bonded_devices(&num_devices, device_list, sizeof(device_list));
   if (display.getButtons(TSButtonUpperRight)){
       if(delete_confirmation)
         delete_confirmation = false;
@@ -363,5 +365,21 @@ void buttonLoop() {
       writeTextCustom("NO >", liberationSans_10ptFontInfo, 64, 42, TS_8b_Gray, TS_8b_Black);
     }
     delete_confirmation = !delete_confirmation;
+  }
+  else if(!getConnectionState() && num_devices > 0 && display.getButtons(TSButtonUpperLeft)){
+    const char local_name[] = {AD_TYPE_COMPLETE_LOCAL_NAME, 'B', 'l', 'u', 'e', 'K', 'B'};
+    uint8_t retval = aci_gap_set_non_discoverable();
+    PRINTF("try disable discoverable: 0x%02X\n", retval);
+    // Turn on limited discoverable mode
+    retval = aci_gap_set_limited_discoverable(ADV_IND,
+                                     (ADV_INTERVAL_MIN_MS * 1000) / 625, (ADV_INTERVAL_MAX_MS * 1000) / 625,
+                                     STATIC_RANDOM_ADDR, NO_WHITE_LIST_USE,
+                                     sizeof(local_name), local_name, 0, NULL, 0, 0);
+    PRINTF("try enable 180 secs discoverable: 0x%02X\n", retval);
+    if(retval == BLE_STATUS_SUCCESS){
+      display.clearScreen();
+      writeTextCustom("Discoverable", liberationSans_12ptFontInfo, 0xFF, 0xFF, TS_8b_Yellow, TS_8b_Black);
+      writeTextCustom("For 180 seconds", liberationSans_10ptFontInfo, 0xFF, 42, TS_8b_Green, TS_8b_Black);
+    }
   }
 }
