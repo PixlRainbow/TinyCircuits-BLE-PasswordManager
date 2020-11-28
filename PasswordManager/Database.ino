@@ -148,6 +148,9 @@ void db_loop(){
       display.setBrightness(2);
     else
       display.setBrightness(10);
+    // update status indicators
+    updateBLEstatusDisplay(false);
+    displayBattery();
   }
 }
 
@@ -300,6 +303,8 @@ void writeTextCustom(char* text, FONT_INFO font, uint8_t x, uint8_t y, uint8_t f
   else
     display.setCursor(x,y);
   display.print(text);
+  // writeTextCustom is usually preceded by a clearScreen so BLEstatus needs to be redrawn
+  updateBLEstatusDisplay(true);
 }
 
 
