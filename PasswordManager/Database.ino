@@ -342,9 +342,16 @@ void buttonLoop() {
     // clear pairings/bondings
     if(delete_confirmation){
       aci_gap_clear_security_database();
-      char* warning = "Reboot Required";
-      display.clearScreen();
-      writeTextCustom(warning, liberationSans_10ptFontInfo, 0xFF, 0xFF, TS_8b_Gray, TS_8b_Black);
+      /**
+       *  This is not documented, but a quirk of the STBLE stack is that
+       *  you have to set non discoverable before you can set general discoverable again
+       *  if you have previously set any kind of connectable or unconnectable
+       */
+      uint8_t retval = aci_gap_set_non_discoverable();
+      PRINTF("try disable discoverable: 0x%02X\n", retval);
+      // Turn on general discoverable mode again
+      setConnectable();
+      writeText();
     }
     else{
       char* warning = "Clear Pairings?";
