@@ -298,10 +298,12 @@ void writeTextCustom(char* text, FONT_INFO font, uint8_t x, uint8_t y, uint8_t f
   display.setFont(font); //Set Font
   display.fontColor(fg,bg); //sets text and background color
   int width=display.getPrintWidth(text); //get the pixel print width of a string
-  if(x == 0xFF && y == 0xFF) // flag default coordinates
-    display.setCursor(48-(width/2),25);
-  else
-    display.setCursor(x,y);
+  // flag default coordinates
+  if(x == 0xFF)
+    x = 48-(width/2);
+  if(y == 0xFF)
+    y = 25;
+  display.setCursor(x,y);
   display.print(text);
   // writeTextCustom is usually preceded by a clearScreen so BLEstatus needs to be redrawn
   updateBLEstatusDisplay(true);
@@ -326,8 +328,7 @@ void buttonLoop() {
       if(!delete_confirmation){
         char* warning = "Entering Password!";
         PRINTF("%s\n",warning);
-        int width=display.getPrintWidth(warning); //get the pixel print width of a string
-        writeTextCustom(warning, liberationSans_10ptFontInfo, 48-(width/2), 32, TS_8b_Green, TS_8b_Black);
+        writeTextCustom(warning, liberationSans_8ptFontInfo, 0xFF, 48, TS_8b_Green, TS_8b_Black);
         delay(50);
         const int len = strlen(value[displayRow]);
         for(int i = 0; i < len; i++){
